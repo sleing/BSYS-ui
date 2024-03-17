@@ -84,7 +84,7 @@ export default {
     sys: {
       type: String,
       default: () => {
-        return 'ams';
+        return 'tms';
       }
     },
     //选择默认值
