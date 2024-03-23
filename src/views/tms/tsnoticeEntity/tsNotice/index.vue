@@ -354,7 +354,7 @@ export default defineComponent({
           sortable: true
         },
         {
-          field: 'noticeDepartmentId',
+          field: 'noticeDepartmentName',
           title: '通知部门',
           sortable: true
         },

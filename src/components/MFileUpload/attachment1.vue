@@ -5,7 +5,7 @@
       :remove="handleRemove"
       :file-list="fileList"
       :before-upload="beforeUpload"
-      accept=".7z,.zip,.rar"
+      accept=".7z,.zip,.rar，.pdf,.docx"
     >
       <div v-if="fileList.length < 1">
         <a-button type="primary">
@@ -160,10 +160,7 @@ export default {
     },
 
     preview(item) {
-      //http://124.223.28.171/
-      let strUrl = "http://localhost:8081/api/erp/system/Attachment/download?isOnline=true&attachmentId=" + item.attachmentId
-      // let strUrl = "http://124.223.28.171:8081/api/erp/system/Attachment/download?isOnline=true&attachmentId=" + item.attachmentId
-      // let strUrl = "http://39.98.84.42:9000/api/erp/system/Attachment/download?isOnline=true&attachmentId=" + item.attachmentId
+      let strUrl =process.env.VUE_APP_FILE_URL+ item.attachmentId
       window.open(strUrl);
     }
   },

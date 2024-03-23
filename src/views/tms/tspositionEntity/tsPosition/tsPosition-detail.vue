@@ -3,7 +3,7 @@
             <a-form
                     ref="form3"
                     class="ele-form-detail"
-                    :model="tsPositionModalApp.tsPosition"
+                    :model="tsPositiodalApp.tsPosition"
                     :label-col="{md: {span: 2}, sm: {span: 4}, xs: {span: 6}}"
                     :wrapper-col="{md: {span: 22}, sm: {span: 20}, xs: {span: 18}}">
                 <a-descriptions :title="tsPositionModalApp.title" bordered>

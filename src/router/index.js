@@ -15,6 +15,11 @@ const routes = [
     meta: {title: '登录'}
   },
   {
+    path: '/file',
+    component: () => import('@/views/tms/file/file'),
+    meta: {title: '文件查询'}
+  },
+  {
     path: '/stuRegister',
     component: () => import('@/views/login/stuRegister'),
     meta: {title: '学生注册'}

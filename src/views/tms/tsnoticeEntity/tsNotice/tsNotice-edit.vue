@@ -55,6 +55,17 @@
             </a-form-item>
           </a-col>
 
+          <a-form-item label="通知文件:" :label-col="{span:6}" :wrapper-col="{span:18}" style="color: red;">
+            <my-attachment
+              :associate-form-id="tsNoticeModalApp.currentId"
+              associate-form-name="tsNotice"
+              v-on:fileList="fileListFromParentMy"
+              :operator-type="operatorType"
+              ref="attachment1"
+            />
+            <a-p class="theTip">仅能上传.7z,.zip,.rar，.pdf,.docx 格式的文件</a-p>
+          </a-form-item>
+
           <a-col :lg="6" :md="12" :sm="24" :xs="24">
 <!--            <a-form-item label="审核状态:" name="auditStatu">-->
 <!--              <m-dict-select-->
@@ -123,7 +134,7 @@
 </template>
 
 <script>
-import {defineComponent, inject, reactive, onMounted} from 'vue'
+import {defineComponent, inject, reactive, onMounted, ref} from 'vue'
 import {useRoute, useRouter} from "vue-router"
 import {TsNoticeService} from "@/views/tms/tsnoticeEntity/tsNotice/tsNoticeService";
 import {VXETable} from 'vxe-table'
@@ -133,6 +144,8 @@ import regions from 'ele-admin-pro/packages/regions.js';
 
 // import MDictSelect from "@/components/MDict/dictSelect";
 import MEntitySelect from "@/components/MEntity/entitySelect";
+import uploadAttachmentService from "@/components/MFileUpload/attachmentService";
+// import MyAttachment from "@/components/MFileUpload/attachment1";
 
 export default defineComponent({
   components: {
@@ -144,6 +157,8 @@ export default defineComponent({
     const cityData = regions
     const route = useRoute();
     const router = useRouter();
+    let fileListMy = reactive([]);
+    const attachment1 = ref(null);
     const store = useStore();
     let routeId = route.params.id;
     let tsNoticeListApp = inject('tsNoticeListApp', reactive({}));
@@ -233,12 +248,13 @@ export default defineComponent({
     }
 
     /*TODO:提交 新增&编辑*/
-    const onSubmit = (data) => {
+    const onSubmit = async (data) => {
       // debugger;
       //当为数组时用逗号连接
       if (data.eid) {
         //修改
         TsNoticeService.updateTsNotice(data).then((res) => {
+          saveFileMy(data.eid)
           console.log(res);
           VXETable.modal.message({content: '操作成功', status: 'success'});
           setTimeout(onBack, 3000);
@@ -248,6 +264,7 @@ export default defineComponent({
       } else {
         //新增
         TsNoticeService.saveTsNotice(data).then((res) => {
+          saveFileMy(res.data.eid)
           console.log(res);
           VXETable.modal.message({content: '操作成功', status: 'success'});
           setTimeout(onBack, 3000);
@@ -264,10 +281,54 @@ export default defineComponent({
 
     /*TODO:返回列表*/
     const onBack = () => {
-      router.push(`/tms/tsnoticeEntity/tsNotice`);
+      tsNoticeListApp.editModalShowing = false;
+      router.push(`/tms/tsnoticeEntity/tsnotice`);
       store.dispatch('user/tabRemove', route.fullPath);
 
     }
+
+    //附件上传
+    //获取子组件传过来的fileList
+    let fileListFromParentMy = (files) => {
+      // childValue就是子组件传过来的值
+      fileListMy.values = files;
+    }
+
+    let cleanFileListMy = () => {
+      fileListMy.value = [];
+      attachment1.value.cleanFileList();
+      attachment1.value.findFile(tsNoticeModalApp.tsNotice.eid, "tsNotice");
+    }
+
+    let operatorType = ref();
+
+    //点击上传
+    const saveFileMy = (entityEid) => {
+
+      if (fileListMy.values.length !== 0) {
+        let formData = new FormData();
+        //表单名--对应实体表名
+        let formDto = {associateFormId: entityEid, associateFormName: "tsNotice"};
+        var fileUploadDto = JSON.stringify(formDto)
+        formData.append("fileUploadDto", new Blob([fileUploadDto], {type: "application/json"}));
+        fileListMy.values.forEach(file => {
+          formData.append('files', file)
+        });
+        uploadAttachmentService.saveFileMy(formData).then(() => {
+
+          fileListMy = [];
+          VXETable.modal.message({content: '资源包上传成功', status: 'success'});
+          //更改上传组件的状态为编辑状态
+          operatorType = "edit";
+          cleanFileListMy();
+        }).catch((error) => {
+          VXETable.modal.message({content: '资源包上传失败' + `系统错误，原因是：${error.message}`, status: 'error'});
+        });
+
+      }
+    }
+
+
     return {
       cityData,
       routeId,
@@ -276,6 +337,10 @@ export default defineComponent({
       onSubmit,
       continueSubmit,
       onBack,
+      fileListFromParentMy,
+      saveFileMy,
+      attachment1,
+      operatorType,
     }
 
   },

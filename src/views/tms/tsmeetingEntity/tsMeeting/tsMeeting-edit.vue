@@ -88,16 +88,38 @@
             </a-form-item>
           </a-col>
 
-          <a-col :lg="6" :md="12" :sm="24" :xs="24">
-            <a-form-item label="会议地址:" name="meetingAddress">
-              <a-input
-                v-model:value="tsMeetingModalApp.tsMeeting.meetingAddress"
-                placeholder="请输入会议地址"
-                :maxlength="255"
-                allow-clear
-              />
-            </a-form-item>
-          </a-col>
+<!--          <a-col :lg="6" :md="12" :sm="24" :xs="24">-->
+<!--            <a-form-item label="会议地址(链接):" name="meetingAddress">-->
+<!--              <a-input-->
+
+<!--                v-model:value="tsMeetingModalApp.tsMeeting.meetingAddress"-->
+<!--                placeholder="请输入会议地址(连接)"-->
+<!--                :maxlength="255"-->
+<!--                allow-clear-->
+<!--              />-->
+<!--            </a-form-item>-->
+<!--          </a-col>-->
+          <a-form-item label="会议记录:" :label-col="{span:6}" :wrapper-col="{span:18}" style="color: red;">
+            <my-attachment
+              :associate-form-id="tsMeetingModalApp.currentId"
+              associate-form-name="tsMeeting"
+              v-on:fileList="fileListFromParentMy"
+              :operator-type="operatorType"
+              ref="attachment1"
+            />
+            <a-p class="theTip">仅能上传.7z,.zip,.rar，.pdf,.docx 格式的文件</a-p>
+          </a-form-item>
+
+<!--          <a-col  :lg="6" :md="12" :sm="24" :xs="24">-->
+<!--            <a-form-item label="会议地址:" name="meetingAddress">-->
+<!--              <a-input-->
+<!--                v-model:value="tsMeetingModalApp.tsMeeting.meetingAddress"-->
+<!--                placeholder="请输入会议连接"-->
+<!--                :maxlength="255"-->
+<!--                allow-clear-->
+<!--              />-->
+<!--            </a-form-item>-->
+<!--          </a-col>-->
 
           <a-col :md="12" :sm="24" :xs="24">
             <a-form-item :wrapper-col="{md: {offset: 6}}" style="margin-bottom: -20px">
@@ -149,7 +171,7 @@
 </template>
 
 <script>
-import {defineComponent, inject, reactive, onMounted} from 'vue'
+import {defineComponent, inject, reactive, onMounted, ref} from 'vue'
 import {useRoute, useRouter} from "vue-router"
 import {TsMeetingService} from "@/views/tms/tsmeetingEntity/tsMeeting/tsMeetingService";
 import {VXETable} from 'vxe-table'
@@ -159,6 +181,7 @@ import regions from 'ele-admin-pro/packages/regions.js';
 
 import MDictSelect from "@/components/MDict/dictSelect";
 import MEntitySelect from "@/components/MEntity/entitySelect";
+import uploadAttachmentService from "@/components/MFileUpload/attachmentService";
 
 export default defineComponent({
   components: {
@@ -171,6 +194,8 @@ export default defineComponent({
     const route = useRoute();
     const router = useRouter();
     const store = useStore();
+    let fileListMy = reactive([]);
+    const attachment1 = ref(null);
     let routeId = route.params.id;
     let tsMeetingListApp = inject('tsMeetingListApp', reactive({}));
     const tsMeetingModalApp = reactive({
@@ -291,12 +316,13 @@ export default defineComponent({
     }
 
     /*TODO:提交 新增&编辑*/
-    const onSubmit = (data) => {
+    const onSubmit = async (data) => {
       // debugger;
       //当为数组时用逗号连接
       if (data.eid) {
         //修改
         TsMeetingService.updateTsMeeting(data).then((res) => {
+          saveFileMy(data.eid)
           console.log(res);
           VXETable.modal.message({content: '操作成功', status: 'success'});
           setTimeout(onBack, 3000);
@@ -306,6 +332,7 @@ export default defineComponent({
       } else {
         //新增
         TsMeetingService.saveTsMeeting(data).then((res) => {
+          saveFileMy(data.eid)
           console.log(res);
           VXETable.modal.message({content: '操作成功', status: 'success'});
           setTimeout(onBack, 3000);
@@ -322,10 +349,50 @@ export default defineComponent({
 
     /*TODO:返回列表*/
     const onBack = () => {
+      tsMeetingModalApp.editModalShowing = false;
       router.push(`/tms/tsmeetingEntity/tsMeeting`);
       store.dispatch('user/tabRemove', route.fullPath);
-
     }
+
+    //附件上传
+    //获取子组件传过来的fileList
+    let fileListFromParentMy = (files) => {
+      // childValue就是子组件传过来的值
+      fileListMy.values = files;
+    }
+
+    let cleanFileListMy = () => {
+      fileListMy.value = [];
+      attachment1.value.cleanFileList();
+      attachment1.value.findFile(tsMeetingModalApp.tsMeeting.eid, "tsMeeting");
+    }
+
+    let operatorType = ref();
+
+    //点击上传
+    const saveFileMy = (entityEid) => {
+      if (fileListMy.values.length !== 0) {
+        let formData = new FormData();
+        //表单名--对应实体表名
+        let formDto = {associateFormId: entityEid, associateFormName: "tsMeeting"};
+        var fileUploadDto = JSON.stringify(formDto)
+        formData.append("fileUploadDto", new Blob([fileUploadDto], {type: "application/json"}));
+        fileListMy.values.forEach(file => {
+          formData.append('files', file)
+        });
+        uploadAttachmentService.saveFileMy(formData).then(() => {
+          fileListMy = [];
+          VXETable.modal.message({content: '资源包上传成功', status: 'success'});
+          //更改上传组件的状态为编辑状态
+          operatorType = "edit";
+          cleanFileListMy();
+        }).catch((error) => {
+          VXETable.modal.message({content: '资源包上传失败' + `系统错误，原因是：${error.message}`, status: 'error'});
+        });
+
+      }
+    }
+
     return {
       cityData,
       routeId,
@@ -334,6 +401,10 @@ export default defineComponent({
       onSubmit,
       continueSubmit,
       onBack,
+      fileListFromParentMy,
+      saveFileMy,
+      attachment1,
+      operatorType,
     }
 
   },

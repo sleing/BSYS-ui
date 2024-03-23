@@ -457,47 +457,47 @@
                   </template>
                 </vxe-form-item>
 
-                <!-- ocr 印章识别    -->
-                <vxe-form-item field="nickname" :span="12" :item-render="{}">
-                  <template #default="{ data }">
-                    <a-button type="primary" @click="ocr_seal()">智能识别（OCR）</a-button>
-                  </template>
-                </vxe-form-item>
+<!--                &lt;!&ndash; ocr 印章识别    &ndash;&gt;-->
+<!--                <vxe-form-item field="nickname" :span="12" :item-render="{}">-->
+<!--                  <template #default="{ data }">-->
+<!--                    <a-button type="primary" @click="ocr_seal()">智能识别（OCR）</a-button>-->
+<!--                  </template>-->
+<!--                </vxe-form-item>-->
 
-                <vxe-form-item field="nickname" :span="24" :item-render="{}">
-                  <template #default="{ data }">
-                    <span v-if=demo1.hasResponsed >识别结果如下：</span>
-<!--                      <ul>-->
-<!--                        <li v-for="(p, index) in demo1.response_data">{{p.words}}</li>-->
-<!--                      </ul>-->
-                    <span v-if=demo1.hasResponsed >
-                      <br>
-                      <span>&nbsp&nbsp可信度：</span>
-                      <span>{{demo1.accuracy[0].toFixed(3)}}% </span>
-                      &nbsp&nbsp
-                      <span>举办单位：</span>
-                      <span>{{demo1.response_data[0]}}</span>
-                      <br>
+<!--                <vxe-form-item field="nickname" :span="24" :item-render="{}">-->
+<!--                  <template #default="{ data }">-->
+<!--                    <span v-if=demo1.hasResponsed >识别结果如下：</span>-->
+<!--&lt;!&ndash;                      <ul>&ndash;&gt;-->
+<!--&lt;!&ndash;                        <li v-for="(p, index) in demo1.response_data">{{p.words}}</li>&ndash;&gt;-->
+<!--&lt;!&ndash;                      </ul>&ndash;&gt;-->
+<!--                    <span v-if=demo1.hasResponsed >-->
+<!--                      <br>-->
+<!--                      <span>&nbsp&nbsp可信度：</span>-->
+<!--                      <span>{{demo1.accuracy[0].toFixed(3)}}% </span>-->
+<!--                      &nbsp&nbsp-->
+<!--                      <span>举办单位：</span>-->
+<!--                      <span>{{demo1.response_data[0]}}</span>-->
+<!--                      <br>-->
 
-                      <span>&nbsp&nbsp可信度：</span>
-                      <span>{{demo1.accuracy[1].toFixed(3)}}%</span>
-                      &nbsp&nbsp
-                      <span>举办单位：</span>
-                      <span>{{demo1.response_data[1]}}</span>
-                      <br>
+<!--                      <span>&nbsp&nbsp可信度：</span>-->
+<!--                      <span>{{demo1.accuracy[1].toFixed(3)}}%</span>-->
+<!--                      &nbsp&nbsp-->
+<!--                      <span>举办单位：</span>-->
+<!--                      <span>{{demo1.response_data[1]}}</span>-->
+<!--                      <br>-->
 
-                      <span>&nbsp&nbsp可信度：</span>
-                      <span>{{demo1.accuracy[2].toFixed(3)}}%</span>
-                      &nbsp&nbsp
-                      <span>举办单位：</span>
-                      <span>{{demo1.response_data[2]}}</span>
-                      <br>
+<!--                      <span>&nbsp&nbsp可信度：</span>-->
+<!--                      <span>{{demo1.accuracy[2].toFixed(3)}}%</span>-->
+<!--                      &nbsp&nbsp-->
+<!--                      <span>举办单位：</span>-->
+<!--                      <span>{{demo1.response_data[2]}}</span>-->
+<!--                      <br>-->
 
 
-                    </span>
+<!--                    </span>-->
 
-                  </template>
-                </vxe-form-item>
+<!--                  </template>-->
+<!--                </vxe-form-item>-->
 
                 <br><br>
                 <vxe-form-item field="nickname" :span="24" :item-render="{}">
@@ -575,7 +575,7 @@ import setting from "@/config/setting";
 import MAttachment from "@/components/MFileUpload/attachment";
 import {toRaw} from '@vue/reactivity'
 import uploadAttachmentService from "@/components/MFileUpload/attachmentService";
-import AttachmentService from "@/components/MFileUpload/attachmentService";
+// import AttachmentService from "@/components/MFileUpload/attachmentService";
 
 export default defineComponent({
   components: {
@@ -1118,9 +1118,9 @@ export default defineComponent({
       })
     }
 
-    // ocr 识别印章
-    const hasResposed = false;
-    const accuracy = '';
+    // // ocr 识别印章
+    // const hasResposed = false;
+    // const accuracy = '';
 
 
     const ocr_seal = () => {

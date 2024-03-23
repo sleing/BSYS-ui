@@ -11,18 +11,6 @@
         <a-row :gutter="16">
 
           <a-col :lg="6" :md="12" :sm="24" :xs="24">
-            <a-form-item label="序号:" name="activityIndex">
-              <a-input-number
-                v-model:value="tsActivityModalApp.tsActivity.activityIndex"
-                placeholder="请输入序号"
-                :min="0"
-                :step="1"
-                class="ele-fluid"
-              ></a-input-number>
-            </a-form-item>
-          </a-col>
-
-          <a-col :lg="6" :md="12" :sm="24" :xs="24">
             <a-form-item label="活动类型:" name="activityType">
               <a-input
                 v-model:value="tsActivityModalApp.tsActivity.activityType"
@@ -79,13 +67,36 @@
           </a-col>
 
           <a-col :lg="6" :md="12" :sm="24" :xs="24">
-            <a-form-item label="活动内容:" name="activityContent">
+            <a-form-item label="活动主题:" name="activityFile">
               <a-input
-                v-model:value="tsActivityModalApp.tsActivity.activityContent"
-                placeholder="请输入活动内容"
+                v-model:value="tsActivityModalApp.tsActivity.activityFile"
+                placeholder="请输入活动主题"
                 :maxlength="255"
                 allow-clear
               />
+            </a-form-item>
+          </a-col>
+
+          <a-col :lg="6" :md="12" :sm="24" :xs="24">
+            <a-form-item label="活动简介:" name="activityContent">
+              <a-input
+                v-model:value="tsActivityModalApp.tsActivity.activityContent"
+                placeholder="请输入活动简介"
+                :maxlength="255"
+                allow-clear
+              />
+            </a-form-item>
+          </a-col>
+
+          <a-col :lg="6" :md="12" :sm="24" :xs="24">
+            <a-form-item label="活动参与人数:" name="activityIndex">
+              <a-input-number
+                v-model:value="tsActivityModalApp.tsActivity.activityIndex"
+                placeholder="请输入人数"
+                :min="0"
+                :step="1"
+                class="ele-fluid"
+              ></a-input-number>
             </a-form-item>
           </a-col>
 
@@ -100,16 +111,16 @@
             </a-form-item>
           </a-col>
 
-          <a-col :lg="6" :md="12" :sm="24" :xs="24">
-            <a-form-item label="活动资料:" name="activityFile">
-              <a-input
-                v-model:value="tsActivityModalApp.tsActivity.activityFile"
-                placeholder="请输入活动资料"
-                :maxlength="255"
-                allow-clear
-              />
-            </a-form-item>
-          </a-col>
+<!--          <a-col :lg="6" :md="12" :sm="24" :xs="24">-->
+<!--            <a-form-item label="活动资料:" name="activityFile">-->
+<!--              <a-input-->
+<!--                v-model:value="tsActivityModalApp.tsActivity.activityFile"-->
+<!--                placeholder="请输入活动资料"-->
+<!--                :maxlength="255"-->
+<!--                allow-clear-->
+<!--              />-->
+<!--            </a-form-item>-->
+<!--          </a-col>-->
 
           <a-col :lg="6" :md="12" :sm="24" :xs="24">
             <a-form-item label="举办时长:" name="holdTime">
@@ -121,6 +132,17 @@
               />
             </a-form-item>
           </a-col>
+
+          <a-form-item label="活动资料:" :label-col="{span:6}" :wrapper-col="{span:18}" style="color: red;">
+            <my-attachment
+              :associate-form-id="tsActivityModalApp.currentId"
+              associate-form-name="tsActivity"
+              v-on:fileList="fileListFromParentMy"
+              :operator-type="operatorType"
+              ref="attachment1"
+            />
+            <a-p class="theTip">仅能上传.7z,.zip,.rar，.pdf,.docx 格式的文件</a-p>
+          </a-form-item>
 
           <a-col :md="12" :sm="24" :xs="24">
             <a-form-item :wrapper-col="{md: {offset: 6}}" style="margin-bottom: -20px">
@@ -172,7 +194,7 @@
 </template>
 
 <script>
-import {defineComponent, inject, reactive, onMounted} from 'vue'
+import {defineComponent, inject, reactive, onMounted, ref} from 'vue'
 import {useRoute, useRouter} from "vue-router"
 import {TsActivityService} from "@/views/tms/tsactivityEntity/tsActivity/tsActivityService";
 import {VXETable} from 'vxe-table'
@@ -181,6 +203,7 @@ import regions from 'ele-admin-pro/packages/regions.js';
 
 
 import MEntitySelect from "@/components/MEntity/entitySelect";
+import uploadAttachmentService from "@/components/MFileUpload/attachmentService";
 
 export default defineComponent({
   components: {
@@ -192,6 +215,8 @@ export default defineComponent({
     const route = useRoute();
     const router = useRouter();
     const store = useStore();
+    let fileListMy = reactive([]);
+    const attachment1 = ref(null);
     let routeId = route.params.id;
     let tsActivityListApp = inject('tsActivityListApp', reactive({}));
     const tsActivityModalApp = reactive({
@@ -320,12 +345,13 @@ export default defineComponent({
     }
 
     /*TODO:提交 新增&编辑*/
-    const onSubmit = (data) => {
+    const onSubmit = async (data) => {
       // debugger;
       //当为数组时用逗号连接
       if (data.eid) {
         //修改
         TsActivityService.updateTsActivity(data).then((res) => {
+          saveFileMy(data.eid)
           console.log(res);
           VXETable.modal.message({content: '操作成功', status: 'success'});
           setTimeout(onBack, 3000);
@@ -335,6 +361,7 @@ export default defineComponent({
       } else {
         //新增
         TsActivityService.saveTsActivity(data).then((res) => {
+          saveFileMy(data.eid)
           console.log(res);
           VXETable.modal.message({content: '操作成功', status: 'success'});
           setTimeout(onBack, 3000);
@@ -351,10 +378,50 @@ export default defineComponent({
 
     /*TODO:返回列表*/
     const onBack = () => {
+      tsActivityModalApp.editModalShowing = false;
       router.push(`/tms/tsactivityEntity/tsActivity`);
       store.dispatch('user/tabRemove', route.fullPath);
-
     }
+
+    //附件上传
+    //获取子组件传过来的fileList
+    let fileListFromParentMy = (files) => {
+      // childValue就是子组件传过来的值
+      fileListMy.values = files;
+    }
+
+    let cleanFileListMy = () => {
+      fileListMy.value = [];
+      attachment1.value.cleanFileList();
+      attachment1.value.findFile(tsActivityModalApp.tsActivity.eid, "tsActivity");
+    }
+
+    const saveFileMy = (entityEid) => {
+
+      if (fileListMy.values.length !== 0) {
+        let formData = new FormData();
+        //表单名--对应实体表名
+        let formDto = {associateFormId: entityEid, associateFormName: "tsActivity"};
+        var fileUploadDto = JSON.stringify(formDto)
+        formData.append("fileUploadDto", new Blob([fileUploadDto], {type: "application/json"}));
+        fileListMy.values.forEach(file => {
+          formData.append('files', file)
+        });
+        uploadAttachmentService.saveFileMy(formData).then(() => {
+
+          fileListMy = [];
+          VXETable.modal.message({content: '资源包上传成功', status: 'success'});
+          //更改上传组件的状态为编辑状态
+          operatorType = "edit";
+          cleanFileListMy();
+        }).catch((error) => {
+          VXETable.modal.message({content: '资源包上传失败' + `系统错误，原因是：${error.message}`, status: 'error'});
+        });
+
+      }
+    }
+
+    let operatorType = ref();
     return {
       cityData,
       routeId,
@@ -363,6 +430,10 @@ export default defineComponent({
       onSubmit,
       continueSubmit,
       onBack,
+      fileListFromParentMy,
+      saveFileMy,
+      attachment1,
+      operatorType,
     }
 
   },

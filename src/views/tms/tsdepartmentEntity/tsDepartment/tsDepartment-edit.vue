@@ -20,6 +20,17 @@
           </a-col>
 
           <a-col :lg="6" :md="12" :sm="24" :xs="24">
+            <a-form-item label="部门名称:" name="name">
+              <a-input
+                v-model:value="tsDepartmentModalApp.tsDepartment.name"
+                placeholder="请输入部门名称"
+                :maxlength="255"
+                allow-clear
+              />
+            </a-form-item>
+          </a-col>
+
+          <a-col :lg="6" :md="12" :sm="24" :xs="24">
             <a-form-item label="部门主管老师:" name="supervisorTeaId">
               <m-entity-select
                 :default-value="tsDepartmentModalApp.tsDepartment.supervisorTeaName"
