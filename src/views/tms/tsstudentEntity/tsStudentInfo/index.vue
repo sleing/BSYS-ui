@@ -172,6 +172,12 @@
               </template>
               <span>新建弹窗</span>
             </a-button>
+            <a-button type="primary" @click="mutiImport()">
+              <template #icon>
+                <plus-outlined/>
+              </template>
+              <span>批量导入</span>
+            </a-button>
             <a-button type="primary" @click="addEvent2()">
               <template #icon>
                 <plus-outlined/>
@@ -586,6 +592,10 @@ export default defineComponent({
       $grid.commitProxy('query')//TODO:执行代理方法
     }
 
+    const mutiImport=()=>{
+
+    }
+
     //TODO:这里需要返回才能调用
     return {
       eid,
@@ -605,7 +615,8 @@ export default defineComponent({
       reload,
       reset,
       tsStudentInfoListApp,
-      ...toRefs(proxyInfo)
+      ...toRefs(proxyInfo),
+      mutiImport,
     }
   }
 })
