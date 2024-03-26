@@ -172,7 +172,7 @@
               </template>
               <span>新建弹窗</span>
             </a-button>
-            <a-button type="primary" @click="mutiImport()">
+            <a-button type="primary" @click="improtExcel()">
               <template #icon>
                 <plus-outlined/>
               </template>
@@ -221,6 +221,63 @@
         </template>
       </vxe-modal>
 
+      <!--      导入弹窗-->
+      <vxe-modal v-model="excelDemo.displayDemo" id="myModal6" width="100%" height="100%" transfer
+                 @close="importCancel()">
+        <template #title>
+          <span style="color: red;">excel内容解析预览</span>
+        </template>
+
+        <template #default>
+          <vxe-grid ref="xGrid1" v-bind="gridOptions1">
+            <template #toolbar>
+              <vxe-toolbar>
+                <template #buttons>
+                  <vxe-button status="primary" icon="fa fa-download" @click="impotEvent">选择文件</vxe-button>
+                </template>
+              </vxe-toolbar>
+            </template>
+          </vxe-grid>
+          <div style="width: 100%;height: 95%;">
+            <vxe-table
+              highlight-hover-row
+              border
+              ref="xTable"
+              height="82%"
+              :column-config="{
+                isCurrent:true,
+              }"
+              :export-config="{}"
+              :data="excelDemo.data">
+              <vxe-table-column type="seq" width="50"></vxe-table-column>
+              <vxe-table-column field="姓名" title="姓名" sortable></vxe-table-column>
+              <vxe-table-column field="学号" title="学号" sortable></vxe-table-column>
+              <vxe-table-column field="政治面貌" title="政治面貌" sortable></vxe-table-column>
+              <vxe-table-column field="学院" title="学院" sortable></vxe-table-column>
+              <vxe-table-column field="专业" title="专业" sortable></vxe-table-column>
+              <vxe-table-column field="年级" title="年级" sortable></vxe-table-column>
+              <vxe-table-column field="班级" title="班级" sortable></vxe-table-column>
+              <vxe-table-column field="邮箱" title="邮箱" sortable></vxe-table-column>
+              <vxe-table-column field="联系电话" title="联系电话" sortable></vxe-table-column>
+              <template #empty>
+               <span style="color: red;">
+                 <img src="https://n.sinaimg.cn/sinacn17/w120h120/20180314/89fc-fyscsmv5911424.gif">
+                <p>没有更多数据了！</p>
+                </span>
+              </template>
+            </vxe-table>
+            <div style="margin-top: 1%">
+              <vxe-button status="warning" content="取消" style="margin-left: 85%;margin-top: 1%;margin-bottom: 1%"
+                          @click="importCancel()"></vxe-button>
+              <a-button type="primary" @click="importToDataSource()"
+                        style="margin-left: 2%;margin-top: 1%;margin-bottom: 1%"><span>导入数据库</span></a-button>
+            </div>
+          </div>
+        </template>
+
+
+      </vxe-modal>
+
       <!--查看弹窗-->
       <vxe-modal v-model="tsStudentInfoListApp.viewModalShowing" :title="gridOptions.showDetailsTitle"
                  id="tsStudentInfoViewModal"
@@ -258,6 +315,7 @@ import {useRouter} from "vue-router";
 
 import MDictSelect from "@/components/MDict/dictSelect";
 import MEntitySelect from "@/components/MEntity/entitySelect";
+import XLSX from 'xlsx'
 
 export default defineComponent({
   components: {
@@ -278,6 +336,17 @@ export default defineComponent({
     let proxyInfo = reactive({})
     const where = ref({})
     const eid = ref({})
+    const xGrid1 = ref({})
+    const excelDemo = reactive({
+      displayDemo: false,
+      data: [],
+      properties: [],
+    })
+    const gridOptions1 = reactive({
+      border: false,
+      height: 0,
+      emptyText: "学生信息预览"
+    })
     const startIndex = ref({})
     const tsStudentInfoListApp = reactive({
       editModalShowing: false,
@@ -592,8 +661,74 @@ export default defineComponent({
       $grid.commitProxy('query')//TODO:执行代理方法
     }
 
-    const mutiImport=()=>{
+    const improtExcel = () => {
+      excelDemo.displayDemo = true
+    }
 
+    const importCancel = () => {
+      excelDemo.displayDemo = false
+    }
+
+    const impotEvent = async () => {
+      const $grid = xGrid1.value
+      const {files} = await $grid.readFile({
+        types: ['xls', 'xlsx']
+      })
+      const fileReader = new FileReader()
+      fileReader.onload = (event) => {
+        const data = event.target ? event.target.result : ''
+        const workbook = XLSX.read(data, {type: 'binary'})
+        const csvData = XLSX.utils.sheet_to_json(workbook.Sheets.Sheet1)
+        // let temp={}
+        let result = []
+        let index = 0
+        let propertiesList = ["序号", "姓名", "学号", "政治面貌", "学院", "专业", "年级", "班级", "邮箱", "联系电话"]
+        let flag = true;
+        //map去重
+        csvData.map((item) => {
+          result.push(item)
+          console.log(result)
+          // if (!temp[item["name"], !item["studentId"], !item["politics"],!item["college"], !item["major"], !item["grade"], !item["class"], !item["email"], !item["contactTel"]]){
+          //   result.push(item)
+          //   temp[item["name"],item["studentId"],item["politics"],item["college"], item["major"], item["garde"], item["class"], item["email"], item["contactTel"]]=true
+          // }
+        })
+        //得到表格表头
+        csvData.forEach((value) => {
+          if (index == 1) {
+            return
+          }
+          excelDemo.properties = Object.keys(value)
+          index++;
+        })
+        //判断导入excel格式
+        excelDemo.properties.forEach((value => {
+          if (propertiesList.indexOf(value) == -1) {
+            flag = false
+          }
+        }))
+        if (flag && excelDemo.properties.length == propertiesList.length) {
+          excelDemo.data = result
+          VXETable.modal.message({content: '数据解析成功！', status: 'success'})
+        } else {
+          VXETable.modal.message({content: '导入excel格式不正确！', status: 'error'})
+        }
+      }
+      fileReader.readAsBinaryString(files[0])
+    }
+
+    const importToDataSource = () => {
+      var jsonStr = JSON.stringify(excelDemo.data)
+      if (excelDemo.data.length == 0) {
+        VXETable.modal.message({content: '无数据，禁止操作', status: 'error'})
+      } else {
+        TsStudentInfoService.mutiImport(JSON.parse(jsonStr)).then((res) => {
+          console.log(res)
+          VXETable.modal.message({content: '操作成功', status: 'success'})
+        })
+      }
+      excelDemo.data = []
+      excelDemo.displayDemo = false
     }
 
     //TODO:这里需要返回才能调用
@@ -616,7 +751,13 @@ export default defineComponent({
       reset,
       tsStudentInfoListApp,
       ...toRefs(proxyInfo),
-      mutiImport,
+      improtExcel,
+      excelDemo,
+      impotEvent,
+      xGrid1,
+      gridOptions1,
+      importCancel,
+      importToDataSource
     }
   }
 })
