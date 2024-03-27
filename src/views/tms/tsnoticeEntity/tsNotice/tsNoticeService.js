@@ -14,6 +14,15 @@ export class TsNoticeService {
         });
     }
 
+    //查询未审核通知
+  static findTsNoticesWithoutAudition (queryParams) {
+    return axios({
+      url: '/tms/tsnoticeEntity/TsNotice/findTsNoticesWithoutAudition',
+      method: 'POST',
+      data: queryParams
+    });
+  }
+
     //根据ID查询指定的通知管理
     static findTsNotice (tsNoticeId) {
         const query = {

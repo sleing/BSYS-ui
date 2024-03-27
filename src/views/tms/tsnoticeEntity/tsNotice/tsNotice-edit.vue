@@ -44,16 +44,22 @@
             </a-form-item>
           </a-col>
 
-          <a-col :lg="6" :md="12" :sm="24" :xs="24">
-            <a-form-item label="通知内容:" name="content">
-              <a-input
-                v-model:value="tsNoticeModalApp.tsNotice.content"
-                placeholder="请输入通知内容"
-                :maxlength="255"
-                allow-clear
-              />
-            </a-form-item>
-          </a-col>
+<!--          <a-col :lg="6" :md="12" :sm="24" :xs="24">-->
+<!--            <a-form-item label="通知内容:" name="content">-->
+<!--              <a-input-->
+<!--                v-model:value="tsNoticeModalApp.tsNotice.content"-->
+<!--                placeholder="请输入通知内容"-->
+<!--                :maxlength="255"-->
+<!--                allow-clear-->
+<!--              />-->
+<!--            </a-form-item>-->
+<!--          </a-col>-->
+
+          <a-form-item label="通知内容:" :label-col="{span:6}" :wrapper-col="{span:18}" style="color: red;">
+          <TinymceEditor
+            v-model:value="tsNoticeModalApp.tsNotice.content"
+          />
+          </a-form-item>
 
           <a-form-item label="通知文件:" :label-col="{span:6}" :wrapper-col="{span:18}" style="color: red;">
             <my-attachment
@@ -65,6 +71,15 @@
             />
             <a-p class="theTip">仅能上传.7z,.zip,.rar，.pdf,.docx 格式的文件</a-p>
           </a-form-item>
+
+          <a-col :lg="8" :md="12" :sm="24" :xs="24">
+            <a-form-item label="通知类型:" name="status">
+              <m-dict-select
+                v-model:value="tsNoticeModalApp.tsNotice.status"
+                dict="通知类型"
+                placeholder="请选择通知类型"/>
+            </a-form-item>
+          </a-col>
 
           <a-col :lg="6" :md="12" :sm="24" :xs="24">
 <!--            <a-form-item label="审核状态:" name="auditStatu">-->

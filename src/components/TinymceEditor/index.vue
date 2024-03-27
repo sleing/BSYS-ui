@@ -8,6 +8,7 @@
 </template>
 
 <script>
+
 const BASE_URL = process.env.BASE_URL;
 import tinymce from 'tinymce/tinymce';
 import 'tinymce/icons/default';
@@ -42,6 +43,7 @@ import 'tinymce/plugins/visualchars';
 import 'tinymce/plugins/wordcount';
 import 'tinymce/plugins/emoticons/js/emojis';
 import Editor from '@tinymce/tinymce-vue';
+// import axios from 'axios';
 // 默认配置
 const defaultConfig = {
   height: 300,
@@ -124,8 +126,13 @@ const defaultConfig = {
     'rtl'
   ].join(' '),
   toolbar_drawer: 'sliding',
-  images_upload_handler: (blobInfo, success) => {
+  images_upload_handler:async (blobInfo, success) => {
+    //原来的代码
     success('data:image/jpeg;base64,' + blobInfo.base64());
+
+    // const file = blobInfo.blob()
+    // const { url } = await this.uploadFile(file, 'image')
+    // success(url)
   },
   file_picker_types: 'media',
   file_picker_callback: () => {

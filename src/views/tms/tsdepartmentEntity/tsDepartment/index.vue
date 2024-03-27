@@ -1,4 +1,5 @@
 <template>
+
   <div class="ele-body">
     <a-card :bordered="false">
       <vxe-grid ref='tsDepartmentGrid' v-bind="gridOptions" class="my-grid66">
@@ -8,9 +9,7 @@
             :model="where"
             :label-col="{md: {span: 4}, sm: {span: 24}}"
             :wrapper-col="{md: {span: 20}, sm: {span: 24}}">
-            <a-row>
-
-
+            <a-row>>
               <a-col :lg="6" :md="12" :sm="24"
                      :xs="24">
                 <a-form-item label="部门级别:" name="departmentLevel">
@@ -674,5 +673,24 @@ export default defineComponent({
   position: absolute;
   left: 4px;
   bottom: -10px;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.text {
+  font-size: 14px;
+}
+
+.item {
+  margin-bottom: 0px;
+  margin-top: 10px;
+}
+
+.box-card {
+  width: 480px;
 }
 </style>

@@ -20,6 +20,11 @@ const routes = [
     meta: {title: '文件查询'}
   },
   {
+    path: '/audit',
+    component: () => import('@/views/tms/audit/auditService'),
+    meta: {title: '审核管理'}
+  },
+  {
     path: '/stuRegister',
     component: () => import('@/views/login/stuRegister'),
     meta: {title: '学生注册'}

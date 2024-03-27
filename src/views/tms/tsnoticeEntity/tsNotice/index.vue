@@ -102,16 +102,15 @@
 
         <template #operate="{ row }">
           <a-space>
-            <a @click="editEvent(row)">修改</a>
+            <a @click="editEvent(row)" v-if="(row.auditStatu=='驳回'||row.auditStatu=='未审核')">修改</a>
             <a-divider type="vertical"/>
-            <a class="ele-text-success" @click="editEvent2(row.eid)">修改独立页</a>
             <a-divider type="vertical"/>
             <a class="ele-text-warning" @click="viewEvent(row)">查看</a>
             <a-divider type="vertical"/>
             <a-popconfirm
               title="确定要删除此记录吗？"
               @confirm="deleteEvent(row)">
-              <a class="ele-text-danger">删除</a>
+              <a class="ele-text-danger" v-if="(row.auditStatu=='驳回'||row.auditStatu=='未审核')">删除</a>
             </a-popconfirm>
           </a-space>
         </template>
@@ -361,6 +360,11 @@ export default defineComponent({
         {
           field: 'content',
           title: '通知内容',
+          sortable: true
+        },
+        {
+          field: 'remark',
+          title: '审核意见',
           sortable: true
         },
         {

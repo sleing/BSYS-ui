@@ -25,8 +25,13 @@
       <a-descriptions-item label="通知部门">
         {{ tsNoticeModalApp.tsNotice.noticeDepartmentId }}
       </a-descriptions-item>
+<!--      <a-descriptions-item label="通知内容">-->
+<!--        {{ tsNoticeModalApp.tsNotice.content }}-->
+<!--      </a-descriptions-item>-->
       <a-descriptions-item label="通知内容">
-        {{ tsNoticeModalApp.tsNotice.content }}
+      <TinymceEditor
+        disabled="true"
+        v-model:value="tsNoticeModalApp.tsNotice.content"/>
       </a-descriptions-item>
       <a-descriptions-item label="审核状态">
         {{ tsNoticeModalApp.tsNotice.auditStatu }}
