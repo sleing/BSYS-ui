@@ -112,6 +112,7 @@
               @confirm="deleteEvent(row)">
               <a class="ele-text-danger" v-if="(row.auditStatu=='驳回'||row.auditStatu=='未审核')">删除</a>
             </a-popconfirm>
+            <a @click="sendEmail(row)">邮箱通知</a>
           </a-space>
         </template>
 
@@ -528,6 +529,12 @@ export default defineComponent({
       $grid.commitProxy('query')//TODO:执行代理方法
     }
 
+    const sendEmail=(row)=>{
+      TsNoticeService.sendEmail(row.title,row.content).then((res)=>{
+        console.log(res)
+      })
+    }
+
     //TODO:这里需要返回才能调用
     return {
       eid,
@@ -547,7 +554,8 @@ export default defineComponent({
       reload,
       reset,
       tsNoticeListApp,
-      ...toRefs(proxyInfo)
+      ...toRefs(proxyInfo),
+      sendEmail
     }
   }
 })
