@@ -127,6 +127,13 @@
 
                 <vxe-form-item field="title" :span="12" :item-render="{}">
                   <template #default="{ data }">
+                    <span class="test2">通知概要：</span>
+                    {{ data.name }}
+                  </template>
+                </vxe-form-item>
+
+                <vxe-form-item field="title" :span="12" :item-render="{}">
+                  <template #default="{ data }">
                     <span class="test2">审核意见：</span>
                     <TinymceEditor
                       :disabled="false"
@@ -343,6 +350,11 @@ export default defineComponent({
         {
           field: 'content',
           title: '通知内容',
+          sortable: true
+        },
+        {
+          field: 'name',
+          title: '通知概要',
           sortable: true
         },
         {

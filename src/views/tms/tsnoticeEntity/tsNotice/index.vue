@@ -61,17 +61,17 @@
                 </a-form-item>
               </a-col>
 
-<!--              <a-col v-if="searchExpand" :lg="6" :md="12" :sm="24"-->
-<!--                     :xs="24">-->
-<!--                <a-form-item label="审核状态:" name="auditStatu">-->
-<!--                  <m-dict-select-->
-<!--                    v-model:value="where.auditStatu"-->
-<!--                    placeholder="请选择审核状态"-->
-<!--                    dict="审核状态"-->
-<!--                    class="ele-fluid"-->
-<!--                  />-->
-<!--                </a-form-item>-->
-<!--              </a-col>-->
+              <!--              <a-col v-if="searchExpand" :lg="6" :md="12" :sm="24"-->
+              <!--                     :xs="24">-->
+              <!--                <a-form-item label="审核状态:" name="auditStatu">-->
+              <!--                  <m-dict-select-->
+              <!--                    v-model:value="where.auditStatu"-->
+              <!--                    placeholder="请选择审核状态"-->
+              <!--                    dict="审核状态"-->
+              <!--                    class="ele-fluid"-->
+              <!--                  />-->
+              <!--                </a-form-item>-->
+              <!--              </a-col>-->
 
               <a-col :lg="6" :md="12" :sm="24" :xs="24">
                 <a-form-item class="ele-text-right" :wrapper-col="{span: 24}">
@@ -364,6 +364,11 @@ export default defineComponent({
           sortable: true
         },
         {
+          field: 'name',
+          title: '通知概要',
+          sortable: true
+        },
+        {
           field: 'remark',
           title: '审核意见',
           sortable: true
@@ -529,9 +534,12 @@ export default defineComponent({
       $grid.commitProxy('query')//TODO:执行代理方法
     }
 
-    const sendEmail=(row)=>{
-      TsNoticeService.sendEmail(row.title,row.content).then((res)=>{
+    const sendEmail = (row) => {
+      TsNoticeService.sendEmail(row.title, row.content).then((res) => {
+        VXETable.modal.message({content: '操作成功', status: 'success'})
         console.log(res)
+      }).catch((error) => {
+        VXETable.modal.message({content: `系统错误，原因是：${error.message}`, status: 'error'});
       })
     }
 
